@@ -10,10 +10,11 @@ rails アプリ を apps/ 以下のディレクトリに配置する
 * rails
 * rake
 * rails-sh
+* mysql
 * top
 * ps
 * kill
 
 これは devel@doctrl_rails ホストへ ssh でコマンドを投げる
 
-ps と kill は、一番最初に -l か --local をつけることで ssh ではなく直接実行される
+top, ps, kill は、一番最初に -l か --local をつけることで ssh ではなく直接実行される
