@@ -1,0 +1,4 @@
+#!/bin/bash
+
+pwd=$(pwd)
+ssh -t -i ~/.ssh/wrapper_id_rsa devel@doctrl_rails "cd $pwd; bundle exec rails-sh" "$@"

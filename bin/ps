@@ -1,0 +1,12 @@
+#!/bin/bash
+
+case "$1" in
+	-l | --local)
+		shift
+		ps "$@"
+		;;
+	*)
+		pwd=$(pwd)
+		ssh -i ~/.ssh/wrapper_id_rsa devel@doctrl_rails "cd $pwd; ps" "$@"
+		;;
+esac
