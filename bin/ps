@@ -3,10 +3,9 @@
 case "$1" in
 	-l | --local)
 		shift
-		ps "$@"
+		/bin/ps "$@"
 		;;
 	*)
-		pwd=$(pwd)
-		ssh -i ~/.ssh/wrapper_id_rsa devel@doctrl_rails "cd $pwd; ps" "$@"
+		docker exec -u devel "$DOCTRL_EXEC_TO" ps "$@"
 		;;
 esac

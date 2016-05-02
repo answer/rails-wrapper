@@ -1,4 +1,3 @@
 #!/bin/bash
 
-pwd=$(pwd)
-ssh -i ~/.ssh/wrapper_id_rsa devel@doctrl_rails "cd $pwd; bundle exec rake" "$@"
+bundle exec rake "$@"
