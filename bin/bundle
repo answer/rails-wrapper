@@ -1,4 +1,11 @@
 #!/bin/bash
 
+if [ -z "$RACK_ENV" ]; then
+	RACK_ENV=$RAILS_ENV
+fi
+if [ -z "$RACK_ENV" ]; then
+	RACK_ENV=development
+fi
+
 pwd=$(pwd)
-docker exec -u devel "$DOCTRL_EXEC_TO" sh -c "cd $pwd; . /home/devel/.profile; RAILS_DEVEL_NAME=$RAILS_DEVEL_NAME RACK_ENV=$RACK_ENV bundle"' $@' - "$@"
+docker exec -it -u devel "$DOCTRL_EXEC_TO" sh -c "cd $pwd; . /home/devel/.profile; RAILS_DEVEL_NAME=$RAILS_DEVEL_NAME RACK_ENV=$RACK_ENV bundle"' $@' - "$@"
