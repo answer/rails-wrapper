@@ -1,13 +1,3 @@
 #!/bin/bash
 
-tty_opt=
-for opt in "$@"; do
-	case "$opt" in
-		c*)
-			tty_opt="-t"
-			;;
-	esac
-done
-
-pwd=$(pwd)
-ssh $tty_opt -i ~/.ssh/wrapper_id_rsa devel@doctrl_rails "cd $pwd; bundle exec rails" "$@"
+bundle exec rails "$@"
