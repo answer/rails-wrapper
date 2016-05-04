@@ -6,15 +6,13 @@ rails アプリ を apps/ 以下のディレクトリに配置する
 
 以下のコマンドが ./bin に定義されている
 
-* bundle
+* ps-devel
+* bash-devel
+* bundle-devel
 * rails
 * rake
 * rails-sh
+* unicorn
 * mysql
-* top
-* ps
-* kill
 
-これは devel@doctrl_rails ホストへ ssh でコマンドを投げる
-
-top, ps, kill は、一番最初に -l か --local をつけることで ssh ではなく直接実行される
+これは $DOCTRL_EXEC_TO へ docker exec でコマンドを投げる
