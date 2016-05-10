@@ -1,0 +1,129 @@
+#!/bin/bash
+
+sidekiq_usage(){
+  echo "usage: sidekiq <command>"
+  echo
+  echo "  command"
+  echo "    start   : 起動(すでにプロセスが動いている場合は何もしない)"
+  echo "    stop    : 停止"
+  echo "    restart : 再起動"
+  echo "    status  : ステータス表示"
+  echo
+  echo "  環境変数"
+  echo "    RAILS_DEVEL_NAME : 必須"
+  echo
+  echo "    RACK_ENV"
+  echo "    RAILS_ENV : RACK_ENV が指定されない場合はこれを参照し、それもなければ development"
+  exit 1
+}
+sidekiq_main(){
+  command=$1
+
+  sidekiq_env
+
+  sidekiq_check_command
+
+  case $command in
+    start)
+      sidekiq_start
+      sidekiq_status
+      ;;
+    stop)
+      sidekiq_stop
+      sidekiq_wait
+      ;;
+    restart)
+      sidekiq_stop
+      sidekiq_wait
+      sidekiq_start
+      sidekiq_status
+      ;;
+    status)
+      sidekiq_status
+      ;;
+  esac
+  exit 0
+}
+sidekiq_env(){
+  if [ -z "$RACK_ENV" ]; then
+    if [ "$RAILS_ENV" ]; then
+      RACK_ENV=$RAILS_ENV
+    else
+      RACK_ENV=development
+    fi
+  fi
+  if [ -z "$RAILS_DEVEL_NAME" ]; then
+    echo "RAILS_DEVEL_NAME が指定されていません"
+    sidekiq_usage
+  fi
+
+  all_commands="start stop restart status"
+}
+sidekiq_check_command(){
+  for c in $all_commands; do
+    if [ "$command" = $c ]; then
+      return
+    fi
+  done
+  if [ "$command" ]; then
+    echo "不明なコマンドが指定されました [$command]"
+  fi
+  sidekiq_usage
+}
+sidekiq_start(){
+  sidekiq_pid
+  if [ "$sidekiq_pid" ]; then
+    echo "sidekiq already running"
+    return
+  fi
+
+  echo "sidekiq starting..."
+  pwd=$(pwd)
+  bundle-devel --docker-detach exec sidekiq
+  sleep 1
+}
+sidekiq_stop(){
+  sidekiq_send_signal -HUP "stop sidekiq..."
+}
+sidekiq_send_signal(){
+  signal=$1
+  message=$2
+  sidekiq_pid
+  if [ -z "$sidekiq_pid" ]; then
+    echo "sidekiq not running"
+    return
+  fi
+
+  echo $message
+  docker exec -u devel "$DOCTRL_EXEC_TO" kill $signal $sidekiq_pid
+}
+sidekiq_status(){
+  sidekiq_pid
+  if [ "$sidekiq_pid" ]; then
+    ps-devel -p $sidekiq_pid -o pid,stat
+  else
+    echo "sidekiq NOT EXIST"
+  fi
+}
+sidekiq_wait(){
+  while true; do
+    sidekiq_pid
+    if [ -z "$sidekiq_pid" ]; then
+      return
+    fi
+  done
+}
+sidekiq_pid(){
+  sidekiq_pid_file=tmp/pids/sidekiq.pid
+  sidekiq_pid=""
+  if [ -f $sidekiq_pid_file ]; then
+    sidekiq_pid=$(cat $sidekiq_pid_file)
+  fi
+  if [ "$sidekiq_pid" ]; then
+    if [ -z "$(ps-devel -p $sidekiq_pid -o pid=)" ]; then
+      sidekiq_pid=""
+    fi
+  fi
+}
+
+sidekiq_main "$@"
