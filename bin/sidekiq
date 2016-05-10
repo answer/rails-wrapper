@@ -79,7 +79,7 @@ sidekiq_start(){
 
   echo "sidekiq starting..."
   pwd=$(pwd)
-  bundle-devel --docker-detach exec sidekiq
+  bundle --docker-detach exec sidekiq
   sleep 1
 }
 sidekiq_stop(){
