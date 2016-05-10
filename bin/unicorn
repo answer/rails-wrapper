@@ -83,7 +83,7 @@ unicorn_start(){
 
   echo "unicorn starting..."
   pwd=$(pwd)
-  bundle-devel --docker-detach exec unicorn -c config/unicorn.rb -E $RACK_ENV
+  bundle --docker-detach exec unicorn -c config/unicorn.rb -E $RACK_ENV
   sleep 1
 }
 unicorn_stop(){

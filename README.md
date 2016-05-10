@@ -8,7 +8,7 @@ rails アプリ を apps/ 以下のディレクトリに配置する
 
 * ps-devel
 * bash-devel
-* bundle-devel
+* bundle
 * rails
 * rake
 * rails-sh
