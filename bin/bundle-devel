@@ -36,6 +36,6 @@ fi
 if [ -z "$command" ]; then
   command="bundle"
 fi
-command=$command' $@'
+command=$command' "$@"'
 
 docker exec $opts -u devel "$DOCTRL_EXEC_TO" sh -c "cd $pwd && . /home/devel/.profile && RAILS_DEVEL_NAME=$RAILS_DEVEL_NAME RACK_ENV=$RACK_ENV $command" - "$@"
