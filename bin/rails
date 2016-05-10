@@ -1,8 +1,8 @@
 #!/bin/bash
 
 if [ "$1" = s ]; then
-	shift
-	unicorn "$@"
+  shift
+  unicorn "$@"
 else
-	bundle-devel exec rails "$@"
+  bundle-devel exec rails "$@"
 fi

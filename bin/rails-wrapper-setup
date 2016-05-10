@@ -1,19 +1,19 @@
 #!/bin/bash
 
 rails_wrapper_setup_main(){
-	local dir
-	dir=/var/www
+  local dir
+  dir=/var/www
 
-	cd $dir
-	if [ -d .git ]; then
-		git checkout master
-		git pull
-	else
-		git clone git://github.com/perfect-freeze/rails-wrapper.git tmp_setup
-		mv tmp_setup/.git .
-		rm -rf tmp_setup
-		git checkout .
-	fi
+  cd $dir
+  if [ -d .git ]; then
+    git checkout master
+    git pull
+  else
+    git clone git://github.com/perfect-freeze/rails-wrapper.git tmp_setup
+    mv tmp_setup/.git .
+    rm -rf tmp_setup
+    git checkout .
+  fi
 }
 
 rails_wrapper_setup_main

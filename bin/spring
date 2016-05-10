@@ -1,0 +1,7 @@
+#!/bin/bash
+
+if [ "$1" = server ]; then
+  bundle-devel --docker-detach exec spring "$@"
+else
+  bundle-devel exec spring "$@"
+fi
