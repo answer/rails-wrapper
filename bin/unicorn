@@ -1,133 +1,133 @@
 #!/bin/bash
 
 unicorn_usage(){
-	echo "usage: unicorn <command>"
-	echo
-	echo "  command"
-	echo "    start   : 起動(すでにプロセスが動いている場合は何もしない)"
-	echo "    stop    : 停止"
-	echo "    restart : 再起動"
-	echo "    status  : ステータス表示"
-	echo
-	echo "  環境変数"
-	echo "    RAILS_DEVEL_NAME : 必須"
-	echo
-	echo "    RACK_ENV"
-	echo "    RAILS_ENV : RACK_ENV が指定されない場合はこれを参照し、それもなければ development"
-	exit 1
+  echo "usage: unicorn <command>"
+  echo
+  echo "  command"
+  echo "    start   : 起動(すでにプロセスが動いている場合は何もしない)"
+  echo "    stop    : 停止"
+  echo "    restart : 再起動"
+  echo "    status  : ステータス表示"
+  echo
+  echo "  環境変数"
+  echo "    RAILS_DEVEL_NAME : 必須"
+  echo
+  echo "    RACK_ENV"
+  echo "    RAILS_ENV : RACK_ENV が指定されない場合はこれを参照し、それもなければ development"
+  exit 1
 }
 unicorn_main(){
-	command=$1
+  command=$1
 
-	unicorn_env
+  unicorn_env
 
-	unicorn_check_command
+  unicorn_check_command
 
-	case $command in
-		start)
-			unicorn_start
-			unicorn_status
-			;;
-		stop)
-			unicorn_stop
-			unicorn_wait
-			;;
-		restart)
-			unicorn_stop
-			unicorn_wait
-			unicorn_start
-			unicorn_status
-			;;
-		status)
-			unicorn_status
-			;;
-	esac
-	exit 0
+  case $command in
+    start)
+      unicorn_start
+      unicorn_status
+      ;;
+    stop)
+      unicorn_stop
+      unicorn_wait
+      ;;
+    restart)
+      unicorn_stop
+      unicorn_wait
+      unicorn_start
+      unicorn_status
+      ;;
+    status)
+      unicorn_status
+      ;;
+  esac
+  exit 0
 }
 unicorn_env(){
-	if [ -z "$RACK_ENV" ]; then
-		if [ "$RAILS_ENV" ]; then
-			RACK_ENV=$RAILS_ENV
-		else
-			RACK_ENV=development
-		fi
-	fi
-	if [ -z "$RAILS_DEVEL_NAME" ]; then
-		echo "RAILS_DEVEL_NAME が指定されていません"
-		unicorn_usage
-	fi
-	if [ ! -f config/unicorn.rb ]; then
-		echo "config/unicorn.rb が見つかりません"
-		unicorn_usage
-	fi
+  if [ -z "$RACK_ENV" ]; then
+    if [ "$RAILS_ENV" ]; then
+      RACK_ENV=$RAILS_ENV
+    else
+      RACK_ENV=development
+    fi
+  fi
+  if [ -z "$RAILS_DEVEL_NAME" ]; then
+    echo "RAILS_DEVEL_NAME が指定されていません"
+    unicorn_usage
+  fi
+  if [ ! -f config/unicorn.rb ]; then
+    echo "config/unicorn.rb が見つかりません"
+    unicorn_usage
+  fi
 
-	all_commands="start stop restart status"
+  all_commands="start stop restart status"
 }
 unicorn_check_command(){
-	for c in $all_commands; do
-		if [ "$command" = $c ]; then
-			return
-		fi
-	done
-	if [ "$command" ]; then
-		echo "不明なコマンドが指定されました [$command]"
-	fi
-	unicorn_usage
+  for c in $all_commands; do
+    if [ "$command" = $c ]; then
+      return
+    fi
+  done
+  if [ "$command" ]; then
+    echo "不明なコマンドが指定されました [$command]"
+  fi
+  unicorn_usage
 }
 unicorn_start(){
-	unicorn_pid
-	if [ "$unicorn_pid" ]; then
-		echo "unicorn already running"
-		return
-	fi
+  unicorn_pid
+  if [ "$unicorn_pid" ]; then
+    echo "unicorn already running"
+    return
+  fi
 
-	echo "unicorn starting..."
-	pwd=$(pwd)
-	docker exec -d -u devel "$DOCTRL_EXEC_TO" sh -c "cd $pwd; . /home/devel/.profile; RAILS_DEVEL_NAME=$RAILS_DEVEL_NAME bundle exec unicorn -c config/unicorn.rb -E $RACK_ENV"
-	sleep 1
+  echo "unicorn starting..."
+  pwd=$(pwd)
+  bundle-devel --docker-detach exec unicorn -c -config/unicorn.rb -E $RACK_ENV
+  sleep 1
 }
 unicorn_stop(){
-	unicorn_send_signal -QUIT "stop unicorn..."
+  unicorn_send_signal -QUIT "stop unicorn..."
 }
 unicorn_send_signal(){
-	signal=$1
-	message=$2
-	unicorn_pid
-	if [ -z "$unicorn_pid" ]; then
-		echo "unicorn not running"
-		return
-	fi
+  signal=$1
+  message=$2
+  unicorn_pid
+  if [ -z "$unicorn_pid" ]; then
+    echo "unicorn not running"
+    return
+  fi
 
-	echo $message
-	docker exec -u devel "$DOCTRL_EXEC_TO" kill $signal $unicorn_pid
+  echo $message
+  docker exec -u devel "$DOCTRL_EXEC_TO" kill $signal $unicorn_pid
 }
 unicorn_status(){
-	unicorn_pid
-	if [ "$unicorn_pid" ]; then
-		ps-devel -p $unicorn_pid -o pid,stat
-	else
-		echo "unicorn NOT EXIST"
-	fi
+  unicorn_pid
+  if [ "$unicorn_pid" ]; then
+    ps-devel -p $unicorn_pid -o pid,stat
+  else
+    echo "unicorn NOT EXIST"
+  fi
 }
 unicorn_wait(){
-	while true; do
-		unicorn_pid
-		if [ -z "$unicorn_pid" ]; then
-			return
-		fi
-	done
+  while true; do
+    unicorn_pid
+    if [ -z "$unicorn_pid" ]; then
+      return
+    fi
+  done
 }
 unicorn_pid(){
-	unicorn_pid_file=tmp/pids/unicorn.pid
-	unicorn_pid=""
-	if [ -f $unicorn_pid_file ]; then
-		unicorn_pid=$(cat $unicorn_pid_file)
-	fi
-	if [ "$unicorn_pid" ]; then
-		if [ -z "$(ps-devel -p $unicorn_pid -o pid=)" ]; then
-			unicorn_pid=""
-		fi
-	fi
+  unicorn_pid_file=tmp/pids/unicorn.pid
+  unicorn_pid=""
+  if [ -f $unicorn_pid_file ]; then
+    unicorn_pid=$(cat $unicorn_pid_file)
+  fi
+  if [ "$unicorn_pid" ]; then
+    if [ -z "$(ps-devel -p $unicorn_pid -o pid=)" ]; then
+      unicorn_pid=""
+    fi
+  fi
 }
 
 unicorn_main "$@"
