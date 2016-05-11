@@ -1,3 +1,10 @@
 #!/bin/bash
 
-bundle exec whenever "$@"
+if [ -z "$RACK_ENV" ]; then
+  RACK_ENV=$RAILS_ENV
+fi
+if [ -z "$RACK_ENV" ]; then
+  RACK_ENV=development
+fi
+
+bundle exec whenever -s "rails_devel_name=$RAILS_DEVEL_NAME&environment=$RACK_ENV" "$@"
