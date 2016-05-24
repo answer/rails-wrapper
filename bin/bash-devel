@@ -1,4 +1,4 @@
 #!/bin/bash
 
 pwd=$(pwd)
-docker exec -it -u devel "$DOCTRL_EXEC_TO" sh -c "cd $pwd && bash -c '"'if [ $# -gt 0 ]; then exec "$@"; else bash; fi'"'"' - "$@"' - "$@"
+docker exec -it -u devel --detach-keys="ctrl-\\,ctrl-c" "$DOCTRL_EXEC_TO" sh -c "cd $pwd && bash -c '"'if [ $# -gt 0 ]; then exec "$@"; else bash; fi'"'"' - "$@"' - "$@"
