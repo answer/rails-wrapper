@@ -38,4 +38,4 @@ if [ -z "$command" ]; then
 fi
 command=$command' "$@"'
 
-docker exec $opts -u devel --detach-keys="ctrl-\\,ctrl-c" "$DOCTRL_EXEC_TO" sh -c "cd $pwd && . /home/devel/.profile && RAILS_DEVEL_NAME=$RAILS_DEVEL_NAME RACK_ENV=$RACK_ENV $command" - "$@"
+docker exec $opts -u devel --detach-keys="ctrl-\\,ctrl-q" "$DOCTRL_EXEC_TO" sh -c "cd $pwd && . /home/devel/.profile && RAILS_DEVEL_NAME=$RAILS_DEVEL_NAME RACK_ENV=$RACK_ENV $command" - "$@"
