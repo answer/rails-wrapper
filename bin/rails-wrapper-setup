@@ -9,7 +9,7 @@ rails_wrapper_setup_main(){
     git checkout master
     git pull
   else
-    git clone git://github.com/perfect-freeze/rails-wrapper.git tmp_setup
+    git clone git://github.com/answer/rails-wrapper.git tmp_setup
     mv tmp_setup/.git .
     rm -rf tmp_setup
     git checkout .
